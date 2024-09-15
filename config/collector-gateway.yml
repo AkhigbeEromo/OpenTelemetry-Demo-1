@@ -1,0 +1,31 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318  # Accepts traces on HTTP OTLP endpoint
+      grpc:
+        endpoint: 0.0.0.0:4317  # Listen for OTLP data over gRPC
+  
+
+processors:
+  batch:
+    timeout: 1s  # Batch the traces for more efficient exporting
+  resource:
+    attributes:
+      - key: test-key
+        value: "test-value"
+        action: insert  # Inserts the custom attribute into each trace
+
+exporters:
+  jaeger:
+    endpoint: jaeger:14250  # Assuming "jaeger" is the hostname of the Jaeger instance in your network
+    insecure: true  # Disable TLS for simplicity, useful in local development
+  logging:
+    loglevel: info  # Logs traces to console for debugging
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]  # Receives OTLP traces from your application
+      processors: [batch, resource]  # Apply batch processing and resource attributes
+      exporters: [logging, jaeger]  # Export traces to Jaeger and log them to console
