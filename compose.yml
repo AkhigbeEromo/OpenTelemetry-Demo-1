@@ -1,6 +1,6 @@
 services:
   app:
-    image: otel-app2
+    image: otel-app
     container_name: My-Otel-App
     ports:
       - "8080:8080"  # Expose the app on port 8080
@@ -8,6 +8,10 @@ services:
     depends_on:
       - collector-gateway
       - jaeger  # Ensure that Jaeger and the collector are up before starting the app
+      - redis   # Ensure Redis is available before starting the app
+    environment:
+      - REDIS_HOST=redis  # Set Redis hostname to link to the Redis service
+      - REDIS_PORT=6379   # Redis default port
 
   jaeger:
     image: jaegertracing/all-in-one:1.27
@@ -41,3 +45,12 @@ services:
       - "55670:55670"    # zpages extension
     depends_on:
       - jaeger  # Ensure Jaeger is up before the collector starts
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"  # Expose Redis on the default port
+    deploy:
+      restart_policy:
+        condition: on-failure

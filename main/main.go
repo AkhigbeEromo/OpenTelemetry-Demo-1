@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"log"
 	"net/http"
-
+	"github.com/redis/go-redis/v9"
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
@@ -14,6 +16,8 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 )
+// Redis client
+var rdb *redis.Client
 
 func initTracer() (*sdktrace.TracerProvider, error) {
 	ctx := context.Background()
@@ -48,15 +52,33 @@ func initTracer() (*sdktrace.TracerProvider, error) {
 	return tp, nil
 
 }
+func initRedis(){
+	redisHost := os.Getenv("REDIS_HOST")
+    redisPort := os.Getenv("REDIS_PORT")
+	rdb = redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%s", redisHost, redisPort),
+		DB: 0,
+	})
+	if err := redisotel.InstrumentTracing(rdb); err != nil {
+		log.Fatalf("failed to instrument Redis with OpenTelemetry: %v", err)
+	}
+}
 func helloHandler(w http.ResponseWriter, req *http.Request) {
-	// Use the global tracer to start a new span
-	// ctx := req.Context()
-	// tracer := otel.Tracer("hello-handler")
-	// _, span := tracer.Start(ctx, "helloHandler")
-	// defer span.End()
-	// log.Println("Span created for helloHandler")
+	ctx := context.Background()
 
-	w.Write([]byte("Hello, World"))
+	//Store data in Redis
+	err:= rdb.Set(ctx, "greeting", "Hello Redis!",0).Err()
+	if err != nil{
+		log.Fatalf("failed to set key in Redis: %v", err)
+	}
+
+	//Retrieve data from Redis
+	val, err := rdb.Get(ctx, "greeting").Result()
+	if err != nil{
+		log.Fatalf("failed to get key from Redis: %v", err)
+	}
+
+	w.Write([]byte(val))
 }
 
 func main() {
@@ -70,6 +92,7 @@ func main() {
 			log.Fatalf("failed to shutdown TracerProvider: %v", err)
 		}
 	}()
+	initRedis()
 	wrappedHandler := otelhttp.NewHandler(http.HandlerFunc(helloHandler), "/hello")
 	http.Handle("/hello", wrappedHandler)
 	fmt.Printf("Server running on port 8080")
