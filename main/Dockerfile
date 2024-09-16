@@ -1,4 +1,4 @@
-FROM golang:latest as build
+FROM golang:latest AS build
 
 RUN mkdir /app
 

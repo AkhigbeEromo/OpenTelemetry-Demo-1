@@ -24,7 +24,7 @@ func initTracer() (*sdktrace.TracerProvider, error) {
 
 	// Configure the OTLP gRPC exporter to send trace data to the OpenTelemetry Collector
 	client := otlptracegrpc.NewClient(
-		otlptracegrpc.WithEndpoint("collector-gateway:4317"),
+		otlptracegrpc.WithEndpoint("collector-agent:4317"),
 		otlptracegrpc.WithInsecure(),
 	)
 	// Create a new OTLP trace exporter

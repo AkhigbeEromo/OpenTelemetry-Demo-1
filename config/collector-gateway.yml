@@ -2,9 +2,9 @@ receivers:
   otlp:
     protocols:
       http:
-        endpoint: 0.0.0.0:4318  # Accepts traces on HTTP OTLP endpoint
+        endpoint: 0.0.0.0:4320  # Accepts traces on HTTP OTLP endpoint
       grpc:
-        endpoint: 0.0.0.0:4317  # Listen for OTLP data over gRPC
+        endpoint: 0.0.0.0:4319  # Listen for OTLP data over gRPC
   
 
 processors:
@@ -13,7 +13,7 @@ processors:
   resource:
     attributes:
       - key: test-key
-        value: "test-value"
+        value: "gateway"
         action: insert  # Inserts the custom attribute into each trace
 
 exporters:

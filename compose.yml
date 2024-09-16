@@ -31,7 +31,7 @@ services:
 
   collector-gateway:
     image: otel/opentelemetry-collector:0.29.0
-    container_name: otel-collector
+    container_name: otel-collector2
     volumes: 
       - ./config/collector-gateway.yml:/etc/otel-collector-config.yaml  # Mount the collector config
     command: ["--config=/etc/otel-collector-config.yaml"]
@@ -40,11 +40,22 @@ services:
       - "8888:8888"      # Prometheus metrics exposed by the collector
       - "8889:8889"      # Prometheus exporter metrics
       - "13133:13133"    # Health check extension
-      - "4317:4317"      # OTLP gRPC receiver (default OTLP gRPC port)
-      - "4318:4318"      # OTLP HTTP receiver (default OTLP HTTP port)
+      - "4319:4319"      # OTLP gRPC receiver (default OTLP gRPC port)
+      - "4320:4320"      # OTLP HTTP receiver (default OTLP HTTP port)
       - "55670:55670"    # zpages extension
-    depends_on:
-      - jaeger  # Ensure Jaeger is up before the collector starts
+    # depends_on:
+    #   - jaeger  # Ensure Jaeger is up before the collector starts
+  
+  collector-agent:
+    image: otel/opentelemetry-collector:0.29.0
+    container_name: otel-collector1
+    volumes:
+      - ./config/collector-agent.yml:/etc/otel-collector-config.yaml
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+
 
   redis:
     image: redis:latest
