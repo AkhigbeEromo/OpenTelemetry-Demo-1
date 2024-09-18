@@ -52,15 +52,8 @@ services:
       - ./config/collector-gateway.yml:/etc/otel-collector-config.yaml  # Mount the collector config
     command: ["--config=/etc/otel-collector-config.yaml"]
     ports:
-      - "1888:1888"      # pprof extension for performance profiling
-      - "8888:8888"      # Prometheus metrics exposed by the collector
-      - "8889:8889"      # Prometheus exporter metrics
-      - "13133:13133"    # Health check extension
       - "4319:4319"      # OTLP gRPC receiver (default OTLP gRPC port)
       - "4320:4320"      # OTLP HTTP receiver (default OTLP HTTP port)
-      - "55670:55670"    # zpages extension
-    # depends_on:
-    #   - jaeger  # Ensure Jaeger is up before the collector starts
   
   collector-agent:
     image: otel/opentelemetry-collector:0.29.0

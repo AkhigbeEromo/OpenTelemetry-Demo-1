@@ -18,14 +18,14 @@ processors:
 
 exporters:
   jaeger:
-    endpoint: jaeger:14250  # Assuming "jaeger" is the hostname of the Jaeger instance in your network
-    insecure: true  # Disable TLS for simplicity, useful in local development
+    endpoint: jaeger:14250  #  "jaeger" is the hostname of the Jaeger instance in my network
+    insecure: true  # This is not good practice in prod
   logging:
     loglevel: info  # Logs traces to console for debugging
 
 service:
   pipelines:
     traces:
-      receivers: [otlp]  # Receives OTLP traces from your application
+      receivers: [otlp]  # Receives OTLP traces from the application
       processors: [batch, resource]  # Apply batch processing and resource attributes
       exporters: [logging, jaeger]  # Export traces to Jaeger and log them to console
