@@ -80,7 +80,14 @@ func helloHandler(w http.ResponseWriter, req *http.Request) {
 
 	w.Write([]byte(val))
 }
-
+func welcomeHandler(w http.ResponseWriter ,req *http.Request){
+		if req.Method == http.MethodGet {
+			w.Write([]byte("Welcome to my Go Application"))
+		} else {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			w.Write([]byte("Only GET method is allowed"))
+		}
+	}
 func main() {
 	tp, err := initTracer()
 	if err != nil {
@@ -93,8 +100,10 @@ func main() {
 		}
 	}()
 	initRedis()
-	wrappedHandler := otelhttp.NewHandler(http.HandlerFunc(helloHandler), "/hello")
-	http.Handle("/hello", wrappedHandler)
+	wrappedHelloHandler := otelhttp.NewHandler(http.HandlerFunc(helloHandler), "/hello")
+	wrappedWelcomeHandler :=  otelhttp.NewHandler(http.HandlerFunc(welcomeHandler), "/")
+	http.Handle("/hello", wrappedHelloHandler)
+	http.Handle("/", wrappedWelcomeHandler)
 	fmt.Printf("Server running on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
