@@ -6,6 +6,7 @@ services:
       - "8080:8080"  # Expose the app on port 8080
     restart: always
     depends_on:
+      - collector-agent
       - collector-gateway
       - jaeger  # Ensure that Jaeger and the collector are up before starting the app
       - redis   # Ensure Redis is available before starting the app
