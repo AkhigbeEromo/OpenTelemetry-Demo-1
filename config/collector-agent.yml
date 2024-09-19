@@ -27,7 +27,4 @@ service:
       receivers: [otlp]
       processors: [batch, resource]
       exporters: [logging, otlp]
-    metrics:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [logging, otlp]  
+ 
